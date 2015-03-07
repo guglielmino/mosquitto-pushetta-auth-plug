@@ -30,11 +30,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <openssl/evp.h>
-#include <mosquitto.h>
-#include <mosquitto_plugin.h>
 #include <fnmatch.h>
 #include <time.h>
+
+#include "pushetta-auth-plug.h"
 
 #include "hash.h"
 
@@ -46,15 +45,11 @@ int pbkdf2_check(char *password, char *hash);
 
 int mosquitto_auth_plugin_version(void)
 {
-	mosquitto_log_printf(MOSQ_LOG_NOTICE, "*** mosquitto_auth_plugin_version");
-
 	return MOSQ_AUTH_PLUGIN_VERSION;
 }
 
 int mosquitto_auth_plugin_init(void **userdata, struct mosquitto_auth_opt *auth_opts, int auth_opt_count)
 {
-   mosquitto_log_printf(MOSQ_LOG_NOTICE, "*** mosquitto_auth_plugin_init");
-   
    *userdata = (struct userdata *)malloc(sizeof(struct userdata));
 	if (*userdata == NULL) {
 		perror("allocting userdata");
@@ -64,29 +59,28 @@ int mosquitto_auth_plugin_init(void **userdata, struct mosquitto_auth_opt *auth_
 	memset(*userdata, 0, sizeof(struct userdata));
 	struct userdata *ud = *userdata;
 	ud->user_data_marker = strdup("pushetta_user_data");
-	ud->validate_user = ptta_mysql_validate_user;
 	
-	
-	mosquitto_log_printf(MOSQ_LOG_NOTICE, "** marker %s", ud->user_data_marker);
+#ifdef GET_BY_USERNAME
+	ud->get_user = get_django_user_by_username;
+#else
+ 	ud->get_user = get_django_user_by_token;
+#endif	
 	
 	return MOSQ_ERR_SUCCESS;
 }
 
 int mosquitto_auth_plugin_cleanup(void *userdata, struct mosquitto_auth_opt *auth_opts, int auth_opt_count)
 {
-   mosquitto_log_printf(MOSQ_LOG_NOTICE, "*** mosquitto_auth_plugin_cleanup");
 	return MOSQ_ERR_SUCCESS;
 }
 
 int mosquitto_auth_security_init(void *userdata, struct mosquitto_auth_opt *auth_opts, int auth_opt_count, bool reload)
 {
-   mosquitto_log_printf(MOSQ_LOG_NOTICE, "*** mosquitto_auth_security_init");
-
 	struct mosquitto_auth_opt *o;
 	int i;
 
 	for (i = 0, o = auth_opts; i < auth_opt_count; i++, o++) {
-		mosquitto_log_printf(MOSQ_LOG_NOTICE, "Options: key=%s, val=%s", o->key, o->value);
+		//mosquitto_log_printf(MOSQ_LOG_NOTICE, "Options: key=%s, val=%s", o->key, o->value);
 		p_add(o->key, o->value);
 	}
 	
@@ -99,7 +93,6 @@ int mosquitto_auth_security_init(void *userdata, struct mosquitto_auth_opt *auth
 
 int mosquitto_auth_security_cleanup(void *userdata, struct mosquitto_auth_opt *auth_opts, int auth_opt_count, bool reload)
 {
-   mosquitto_log_printf(MOSQ_LOG_NOTICE, "*** mosquitto_auth_security_cleanup");
    struct userdata *ud = (struct userdata *)userdata;
    if(ud->user_data_marker)
       free(ud->user_data_marker);
@@ -110,27 +103,41 @@ int mosquitto_auth_security_cleanup(void *userdata, struct mosquitto_auth_opt *a
 
 int mosquitto_auth_unpwd_check(void *userdata, const char *username, const char *password)
 {
-   char *encrypted_password;
-   int auth=0;
-   mosquitto_log_printf(MOSQ_LOG_NOTICE, "*** mosquitto_auth_unpwd_check %s %s", username, password);
+   struct django_auth_user *django_user;
+   char *value_to_check;
+   
+   
+#ifdef GET_BY_USERNAME 
+   value_to_check = (char *)username;
+#else
+ 	value_to_check = (char *)password;
+#endif  
    struct userdata *ud = (struct userdata *)userdata;
+
    
-   encrypted_password = (char *)ud->validate_user(ud->mysql_conf, username, password, &auth);
+   django_user = (struct django_auth_user *)ud->get_user(ud->mysql_conf, value_to_check);
+     
+   if(django_user != NULL){
+
+      if(django_user->password != NULL)
+         free(django_user->password);
    
-   mosquitto_log_printf(MOSQ_LOG_NOTICE, "*** mosquitto_auth_unpwd_check ENC %s", encrypted_password);
+      if(django_user->username != NULL)
+         free(django_user->username);
+         
+      free(django_user);
+   }
    
-	return MOSQ_ERR_SUCCESS;
+	return django_user == NULL ? MOSQ_ERR_AUTH : MOSQ_ERR_SUCCESS;
 }
 
 int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *username, const char *topic, int access)
 {
-   mosquitto_log_printf(MOSQ_LOG_NOTICE, "*** mosquitto_auth_acl_check");
 	return MOSQ_ERR_SUCCESS;
 
 }
 
 int mosquitto_auth_psk_key_get(void *userdata, const char *hint, const char *identity, char *key, int max_key_len)
 {
-   mosquitto_log_printf(MOSQ_LOG_NOTICE, "*** mosquitto_auth_psk_key_get");
 	return MOSQ_ERR_SUCCESS;
 }

@@ -5,7 +5,10 @@
 #include "ptta-mysql.h"
 #include "hash.h"
 
-#define QUERY_USER "select password from auth_user where username='%s'"
+#include "pushetta-auth-plug.h"
+
+#define QUERY_GET_USER "select username, password from auth_user where username='%s'"
+#define QUERY_GET_USER_BY_TOKEN "select username, password from auth_user as a join authtoken_token as b on a.id=b.user_id where b.key='%s'; "
 
 
 struct mysql_config {
@@ -18,8 +21,17 @@ struct mysql_config {
    bool auto_connect;
 };
 
+
+typedef enum __get_user_type{
+   BY_USERNAME,
+   BY_TOKEN
+}get_user_type;
+ 
+
+
 static bool auto_connect(struct mysql_config *conf);
 static char *escape(void *handle, const char *value, long *vlen);
+struct django_auth_user *internal_get_django_user(void *handle, const char *username_or_token, get_user_type get_type);
 
 static char *get_bool(char *option, char *defval)
 {
@@ -97,58 +109,81 @@ void ptta_mysql_destroy(void *handle)
 	}
 }
 
-char *ptta_mysql_validate_user(void *handle, const char *username, const char *password, int *authenticated)
+
+struct django_auth_user *get_django_user_by_username(void *handle, const char *username)
 {
-   char *query = NULL, *u = NULL, *value = NULL, *v;
+   return internal_get_django_user(handle, username, BY_USERNAME);
+}
+
+struct django_auth_user *get_django_user_by_token(void *handle, const char *token)
+{
+   return internal_get_django_user(handle, token, BY_TOKEN);
+}
+
+
+
+/**
+ * Purpose: Get user from django using username as key or token (authtoken_auth table)
+ * Note: 
+ */
+struct django_auth_user *internal_get_django_user(void *handle, const char *username_or_token, get_user_type get_type)
+{
+   char *query = NULL, *u = NULL;
    struct mysql_config *conf = (struct mysql_config *)handle;
    long nrows, ulen;
    MYSQL_RES *res = NULL;
 	MYSQL_ROW rowdata;
+	struct django_auth_user *result = NULL;
    
-   printf("mysql_ping");
+    
    if (mysql_ping(conf->mysql)) {
-        fprintf(stderr, "%s\n", mysql_error(conf->mysql));
+        LOG(MOSQ_LOG_ERR, "%s\n", mysql_error(conf->mysql));
         if (!auto_connect(conf)) {
             return (NULL);
         }
    }
    
-   
-	if ((u = escape(conf, username, &ulen)) == NULL)
+	if ((u = escape(conf, username_or_token, &ulen)) == NULL)
 		return (NULL);
    
-   query = (char *)malloc(strlen(QUERY_USER) + strlen(username));
-   sprintf(query, QUERY_USER, username);
+   char *defined_query = get_type == BY_USERNAME ? QUERY_GET_USER : QUERY_GET_USER_BY_TOKEN;
+   
+   LOG(MOSQ_LOG_NOTICE, "USED QUERY %s", defined_query);
+   
+   query = (char *)malloc(strlen(defined_query) + strlen(username_or_token));
+   sprintf(query, defined_query, username_or_token);
 
    if (mysql_query(conf->mysql, query)) {
-		fprintf(stderr, "%s\n", mysql_error(conf->mysql));
+		LOG(MOSQ_LOG_ERR, "%s\n", mysql_error(conf->mysql));
 		goto out;
 	}
 	
 	res = mysql_store_result(conf->mysql);
 	if ((nrows = mysql_num_rows(res)) != 1) {
-		// DEBUG fprintf(stderr, "rowcount = %ld; not ok\n", nrows);
+		LOG(MOSQ_LOG_ERR, "rowcount = %ld; not ok\n", nrows);
 		goto out;
 	}
 	
-	if (mysql_num_fields(res) != 1) {
-		// DEBUG fprintf(stderr, "numfields not ok\n");
+	if (mysql_num_fields(res) != 2) {
+		LOG(MOSQ_LOG_ERR, "numfields not ok\n");
 		goto out;
 	}
 
 	if ((rowdata = mysql_fetch_row(res)) == NULL) {
+	   LOG(MOSQ_LOG_ERR, "mysql_fetch_row == NULL");
 		goto out;
 	}
    
-	v = rowdata[0];
-	value = (v) ? strdup(v) : NULL;
+   result = (struct django_auth_user*)malloc(sizeof(struct django_auth_user));
+   result->username = strdup(rowdata[0]);
+   result->password = strdup(rowdata[1]);
 	 
 out:
 
 	mysql_free_result(res);
 	free(query);
 
-	return (value);
+	return (result);
 }
 
 // Utilities
