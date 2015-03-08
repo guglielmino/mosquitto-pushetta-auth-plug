@@ -149,6 +149,9 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 	channel_name = get_channel_from_topic((struct topic_name_hanler_data*)ud->topicname_handler, topic);
 	channel_data = get_channel_owner_id(ud->mysql_handle, channel_name);
 
+	if(channel_name == NULL || channel_data == NULL)
+		return MOSQ_ERR_ACL_DENIED;
+
 	switch(access){
 		// SUBSCRIPRION
 		case MOSQ_ACL_READ:
