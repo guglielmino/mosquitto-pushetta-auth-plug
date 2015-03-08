@@ -131,6 +131,17 @@ int mosquitto_auth_unpwd_check(void *userdata, const char *username, const char 
 	return django_user == NULL ? MOSQ_ERR_AUTH : MOSQ_ERR_SUCCESS;
 }
 
+
+/*
+ * Check ACL.
+ * username is auth token.
+ * topic is the topic user is trying to access (may contain
+ * wildcards)
+ * acc is desired type of access: read/write
+ *	for subscriptions (READ) (1)
+ *	for publish (WRITE) (2)
+ *
+ */
 int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *username, const char *topic, int access)
 {
 	return MOSQ_ERR_SUCCESS;
