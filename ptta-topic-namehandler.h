@@ -4,7 +4,7 @@
 #include <regex.h>
 
 struct topic_name_hanler_data{
-	regex_t r;
+	regex_t *r;
 };
 
 struct topic_name_hanler_data* topic_namehandler_init();
