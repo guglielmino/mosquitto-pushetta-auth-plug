@@ -150,7 +150,7 @@ int get_channel_owner_id(void *handle, const char *channel_name){
     return -1;
 
   query = (char *)malloc(strlen(QUERY_GET_CHANNEL_OWNER) + strlen(channel_name));
-  sprintf(query, QUERY_GET_CHANNEL_OWNER, chanel_name);
+  sprintf(query, QUERY_GET_CHANNEL_OWNER, channel_name);
 
   result = internal_execute_query(conf, query, get_channel_owner_id_callback);
 
@@ -224,7 +224,7 @@ out:
 
 // Utilities
 
-void internal_execute_query(void *handle, const char *query, f_execute_query execute_query_callback){
+void internal_execute_query(void *handle, const char *query, f_execute_query *execute_query_callback){
   char *query = NULL, *u = NULL;
   struct mysql_config *conf = (struct mysql_config *)handle;
   long nrows, ulen;
