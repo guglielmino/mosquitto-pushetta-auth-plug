@@ -236,8 +236,6 @@ void *internal_execute_query(void *handle, const char *query, f_execute_query *e
 
   void *result = NULL;
     
-  LOG(MOSQ_LOG_NOTICE, "internal_execute_query");
-
   if (mysql_ping(conf->mysql)) {
         LOG(MOSQ_LOG_ERR, "%s\n", mysql_error(conf->mysql));
         if (!auto_connect(conf)) {
