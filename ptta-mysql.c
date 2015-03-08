@@ -7,8 +7,8 @@
 
 #include "pushetta-auth-plug.h"
 
-#define QUERY_GET_USER "select username, password from auth_user where username='%s'"
-#define QUERY_GET_USER_BY_TOKEN "select username, password from auth_user as a join authtoken_token as b on a.id=b.user_id where b.key='%s'; "
+#define QUERY_GET_USER "select username, password, id from auth_user where username='%s'"
+#define QUERY_GET_USER_BY_TOKEN "select username, password, a.id from auth_user as a join authtoken_token as b on a.id=b.user_id where b.key='%s'; "
 
 
 struct mysql_config {
@@ -164,7 +164,7 @@ struct django_auth_user *internal_get_django_user(void *handle, const char *user
 		goto out;
 	}
 	
-	if (mysql_num_fields(res) != 2) {
+	if (mysql_num_fields(res) != 3) {
 		LOG(MOSQ_LOG_ERR, "numfields not ok\n");
 		goto out;
 	}

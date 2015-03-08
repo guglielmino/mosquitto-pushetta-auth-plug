@@ -4,6 +4,7 @@
 struct django_auth_user{
    char *username;
    char *password;
+   int user_id;
 };
 
 
