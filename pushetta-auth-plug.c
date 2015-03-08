@@ -57,7 +57,6 @@ int mosquitto_auth_plugin_init(void **userdata, struct mosquitto_auth_opt *auth_
 	}
 
 	memset(*userdata, 0, sizeof(struct userdata));
-	struct userdata *ud = *userdata;
 
 	return MOSQ_ERR_SUCCESS;
 }
@@ -94,7 +93,6 @@ int mosquitto_auth_security_cleanup(void *userdata, struct mosquitto_auth_opt *a
 int mosquitto_auth_unpwd_check(void *userdata, const char *username, const char *password)
 {
    struct django_auth_user *django_user;
-   char *value_to_check;
    
    struct userdata *ud = (struct userdata *)userdata;
 
@@ -127,7 +125,8 @@ int mosquitto_auth_unpwd_check(void *userdata, const char *username, const char 
 int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *username, const char *topic, int access)
 {
 	struct userdata *ud = (struct userdata *)userdata;
-
+	struct django_auth_user *django_user;
+	
 	django_user = get_django_user_by_token(ud->mysql_handle, username);
 	
 	switch(access){
