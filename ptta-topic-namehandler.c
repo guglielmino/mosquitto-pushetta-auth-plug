@@ -18,6 +18,7 @@ struct topic_name_hanler_data* topic_namehandler_init(){
 }
 
 char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char *topic){
+	int i = 0;
     const char * p = topic;
     const int n_matches = 1;
     /* "M" contains the matches found. */
@@ -27,7 +28,7 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
 	int nomatch = regexec (handler->r, p, n_matches, m, 0);
     if (nomatch) {
         printf ("No more matches.\n");
-        return nomatch;
+        return NULL;
     }
     for (i = 0; i < n_matches; i++) {
         int start;
