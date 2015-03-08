@@ -130,12 +130,12 @@ struct django_auth_user *get_django_user_by_token(void *handle, const char *toke
 
 
 void *get_channel_owner_id_callback(MYSQL_ROW rowdata){
-  int *result = NULL;
+  struct ptta_channel_data  *result = NULL;
   int val = 0;
 
-  result = malloc(sizeof(int));
-  val = atoi(rowdata[0]);
-  (*result) = val;
+  result = (struct ptta_channel_data *)malloc(sizeof(struct ptta_channel_data));
+  result->owner_id = atoi(rowdata[0]);
+  result->kind = atoi(rowdata[1]);
 
   return result;
 }
@@ -144,7 +144,7 @@ void *get_channel_owner_id_callback(MYSQL_ROW rowdata){
  * Purpose: Get user_id of Pushetta Channel 
  * Note: 
  */
-int get_channel_owner_id(void *handle, const char *channel_name){
+struct ptta_channel_data *get_channel_owner_id(void *handle, const char *channel_name){
   struct mysql_config *conf = (struct mysql_config *)handle;
   char *u = NULL, *query = NULL;
   int *result = NULL;
@@ -220,7 +220,7 @@ struct django_auth_user *internal_get_django_user(void *handle, const char *user
    result->username = strdup(rowdata[0]);
    result->password = strdup(rowdata[1]);
    result->user_id = atoi(rowdata[2]);	 
-   
+
 out:
 
 	mysql_free_result(res);

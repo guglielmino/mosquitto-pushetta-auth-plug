@@ -142,27 +142,25 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 	struct django_auth_user *django_user;
 	char *channel_name = NULL;
 	int ret = MOSQ_ERR_SUCCESS;
+	struct ptta_channel_data *channel_data;
 
 	django_user = get_django_user_by_token(ud->mysql_handle, username);
 
 	channel_name = get_channel_from_topic((struct topic_name_hanler_data*)ud->topicname_handler, topic);
+	channel_data = get_channel_owner_id(ud->mysql_handle, channel_name);
 
 	switch(access){
 		// SUBSCRIPRION
 		case MOSQ_ACL_READ:
-		LOG(MOSQ_LOG_NOTICE, "Subscribe to channel %s by userd id %d", channel_name, django_user->user_id);
+			LOG(MOSQ_LOG_NOTICE, "Subscribe to channel %s by userd id %d", channel_name, django_user->user_id);
+			if(channel_data->kind == PRIVATE_CHANNEL)
+				ret = MOSQ_ERR_ACL_DENIED;
 		break;
 		// PUBLISH
 		case MOSQ_ACL_WRITE:
 		{
-			LOG(MOSQ_LOG_NOTICE, "Current user %s (%d)", django_user->username, django_user->user_id);
 			
-			// MOSQ_ERR_ACL_DENIED se il canale non è dell'utente
-			int owner_id = get_channel_owner_id(ud->mysql_handle, channel_name);
-
-			ret = owner_id == django_user->user_id ? MOSQ_ERR_SUCCESS : MOSQ_ERR_ACL_DENIED;
-			LOG(MOSQ_LOG_NOTICE, "Publish to channel %s %s (owner_id %d -> %d)", channel_name, ret == MOSQ_ERR_SUCCESS ? " Authorized" : " NOT Authorized", owner_id, django_user->user_id);
-
+			ret = channel_data->owner_id == django_user->user_id ? MOSQ_ERR_SUCCESS : MOSQ_ERR_ACL_DENIED;
 		}
 		break;
 	}
