@@ -8,7 +8,6 @@
 
 #define PLUGIN_VERSION "1.0"
 
-
 #define LOG(level, message, args...) mosquitto_log_printf(level, message, ##args)
 
 #endif

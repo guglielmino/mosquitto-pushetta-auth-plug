@@ -58,14 +58,7 @@ int mosquitto_auth_plugin_init(void **userdata, struct mosquitto_auth_opt *auth_
 
 	memset(*userdata, 0, sizeof(struct userdata));
 	struct userdata *ud = *userdata;
-	ud->user_data_marker = strdup("pushetta_user_data");
-	
-#ifdef GET_BY_USERNAME
-	ud->get_user = get_django_user_by_username;
-#else
- 	ud->get_user = get_django_user_by_token;
-#endif	
-	
+
 	return MOSQ_ERR_SUCCESS;
 }
 
@@ -80,13 +73,12 @@ int mosquitto_auth_security_init(void *userdata, struct mosquitto_auth_opt *auth
 	int i;
 
 	for (i = 0, o = auth_opts; i < auth_opt_count; i++, o++) {
-		//mosquitto_log_printf(MOSQ_LOG_NOTICE, "Options: key=%s, val=%s", o->key, o->value);
+		//LOG(MOSQ_LOG_NOTICE, "Options: key=%s, val=%s", o->key, o->value);
 		p_add(o->key, o->value);
 	}
 	
 	struct userdata *ud = (struct userdata *)userdata;
-	ud->mysql_conf = ptta_mysql_init();
-	mosquitto_log_printf(MOSQ_LOG_NOTICE, "** marker %s", ud->user_data_marker);
+	ud->mysql_handle = ptta_mysql_init();
 	
 	return MOSQ_ERR_SUCCESS;
 }
@@ -94,8 +86,6 @@ int mosquitto_auth_security_init(void *userdata, struct mosquitto_auth_opt *auth
 int mosquitto_auth_security_cleanup(void *userdata, struct mosquitto_auth_opt *auth_opts, int auth_opt_count, bool reload)
 {
    struct userdata *ud = (struct userdata *)userdata;
-   if(ud->user_data_marker)
-      free(ud->user_data_marker);
    free(ud);
 	return MOSQ_ERR_SUCCESS;
 }
@@ -106,17 +96,9 @@ int mosquitto_auth_unpwd_check(void *userdata, const char *username, const char 
    struct django_auth_user *django_user;
    char *value_to_check;
    
-   
-#ifdef GET_BY_USERNAME 
-   value_to_check = (char *)username;
-#else
- 	value_to_check = (char *)password;
-#endif  
    struct userdata *ud = (struct userdata *)userdata;
 
-   
-   //django_user = (struct django_auth_user *)ud->get_user(ud->mysql_conf, value_to_check);
-   django_user = get_django_user_by_token(ud->mysql_conf, value_to_check);
+   django_user = get_django_user_by_token(ud->mysql_handle, username);
      
    if(django_user != NULL){
 
@@ -136,8 +118,7 @@ int mosquitto_auth_unpwd_check(void *userdata, const char *username, const char 
 /*
  * Check ACL.
  * username is auth token.
- * topic is the topic user is trying to access (may contain
- * wildcards)
+ * topic is the topic user is trying to access (required forma is /pushetta.com/channels/{name})
  * acc is desired type of access: read/write
  *	for subscriptions (READ) (1)
  *	for publish (WRITE) (2)
@@ -145,6 +126,20 @@ int mosquitto_auth_unpwd_check(void *userdata, const char *username, const char 
  */
 int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *username, const char *topic, int access)
 {
+	struct userdata *ud = (struct userdata *)userdata;
+
+	django_user = get_django_user_by_token(ud->mysql_handle, username);
+	
+	switch(access){
+		// SUBSCRIPRION
+		case 1:
+		break;
+		// PUBLISH
+		case 2:
+		LOG(MOSQ_LOG_NOTICE, "Publish to channel %s by userd id %d", topic, django_user->user_id);
+
+		break;
+	}
 	return MOSQ_ERR_SUCCESS;
 
 }
