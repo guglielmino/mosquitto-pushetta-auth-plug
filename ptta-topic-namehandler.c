@@ -39,6 +39,8 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
         }
         start = m[i].rm_so + (p - topic);
         finish = m[i].rm_eo + (p - topic);
+
+        found = strdupa(topic[start], finish-start);
         
         LOG(MOSQ_LOG_NOTICE, "Match s:%d e:%d", start, finish);
     }
