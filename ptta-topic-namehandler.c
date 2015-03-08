@@ -26,7 +26,6 @@ struct topic_name_hanler_data* topic_namehandler_init(){
 
 char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char *topic){
 	int i = 0;
-    const char * p = topic;
     const int n_matches = 1;
     regmatch_t m[n_matches];
     char *found = NULL;
@@ -36,19 +35,20 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
     	return found;
     }
 
-	int nomatch = regexec (handler->r, p, n_matches, m, 0);
+	int nomatch = regexec (handler->r, topic, n_matches, m, 0);
     if (nomatch) {
         LOG (MOSQ_LOG_NOTICE, "No matches.\n");
         return NULL;
     }
-    for (i = 0; i < n_matches; i++) {
+    if (n_matches == 1) {
         int start;
         int finish;
         if (m[i].rm_so == -1) {
+        	LOG(MOSQ_LOG_ERR, "Pattern not found");
             break;
         }
-        start = m[i].rm_so + (p - topic);
-        finish = m[i].rm_eo + (p - topic);
+        start = m[i].rm_so;
+        finish = m[i].rm_eo;
         if(finish > start){
         	LOG(MOSQ_LOG_NOTICE, "FOUND %d - %d", start, finish);
         	found = strndup(topic + start, finish - start);
