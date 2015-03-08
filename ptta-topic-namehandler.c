@@ -8,7 +8,7 @@
 struct topic_name_hanler_data* topic_namehandler_init(){
 
 	struct topic_name_hanler_data* handler_data = (struct topic_name_hanler_data*)malloc(sizeof(struct topic_name_hanler_data));
-	int status = regcomp (handler_data->r, REGEX_TEXT, REG_EXTENDED|REG_NEWLINE);
+	int status = regcomp (&handler_data->r, REGEX_TEXT, REG_EXTENDED|REG_NEWLINE);
     if (status != 0) {
 		char error_message[MAX_ERROR_MSG];
 		regerror (status, handler_data->r, error_message, MAX_ERROR_MSG);
