@@ -102,6 +102,7 @@ void ptta_mysql_destroy(void *handle)
 {
   struct mysql_config *conf = (struct mysql_config *)handle;
 
+
 	if (conf) {
 		mysql_close(conf->mysql);
 		free(conf);
@@ -130,6 +131,8 @@ struct django_auth_user *get_django_user_by_token(void *handle, const char *toke
 
 void *get_channel_owner_id_callback(MYSQL_ROW rowdata){
    int *result = NULL;
+
+     LOG(MOSQ_LOG_NOTICE, "get_channel_owner_id_callback : %s ", rowdata[0]));
 
    *result = atoi(rowdata[0]);
 
@@ -232,6 +235,8 @@ void *internal_execute_query(void *handle, const char *query, f_execute_query *e
 
   void *result = NULL;
     
+  LOG(MOSQ_LOG_NOTICE, "internal_execute_query");
+
   if (mysql_ping(conf->mysql)) {
         LOG(MOSQ_LOG_ERR, "%s\n", mysql_error(conf->mysql));
         if (!auto_connect(conf)) {
