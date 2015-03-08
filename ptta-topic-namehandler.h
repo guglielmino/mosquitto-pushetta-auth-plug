@@ -1,6 +1,8 @@
 #ifndef __TOPIC_NAME_HANDLER_H
 #define __TOPIC_NAME_HANDLER_H
 
+#include <regex.h>
+
 struct topic_name_hanler_data{
 	regex_t * r;
 };

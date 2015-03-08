@@ -1,4 +1,3 @@
-#include <regex.h>
 #include "ptta-topic-namehandler.h"
 
 #include "pushetta-auth-plug.h"
