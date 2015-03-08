@@ -28,9 +28,9 @@ typedef enum __get_user_type{
 }get_user_type;
  
 // Callback for query execution
-typedef void *(*f_execute_query)(MYSQL_ROW rowdata);
+typedef void *(f_execute_query)(MYSQL_ROW rowdata);
 
-void internal_execute_query(void *handle, const char *query, f_execute_query *execute_query_callback);
+void *internal_execute_query(void *handle, const char *query, f_execute_query *execute_query_callback);
 static bool auto_connect(struct mysql_config *conf);
 static char *escape(void *handle, const char *value, long *vlen);
 struct django_auth_user *internal_get_django_user(void *handle, const char *username_or_token, get_user_type get_type);
@@ -152,8 +152,10 @@ int get_channel_owner_id(void *handle, const char *channel_name){
   query = (char *)malloc(strlen(QUERY_GET_CHANNEL_OWNER) + strlen(channel_name));
   sprintf(query, QUERY_GET_CHANNEL_OWNER, channel_name);
 
-  result = internal_execute_query(conf, query, get_channel_owner_id_callback);
+  result = (int *)internal_execute_query(conf, query, get_channel_owner_id_callback);
 
+  free(query);
+  
   return result == NULL ? -1 : *result;
 }
 
@@ -224,10 +226,9 @@ out:
 
 // Utilities
 
-void internal_execute_query(void *handle, const char *query, f_execute_query *execute_query_callback){
-  char *query = NULL, *u = NULL;
+void *internal_execute_query(void *handle, const char *query, f_execute_query *execute_query_callback){
   struct mysql_config *conf = (struct mysql_config *)handle;
-  long nrows, ulen;
+  long nrows;
   MYSQL_RES *res = NULL;
   MYSQL_ROW rowdata;
 
@@ -267,7 +268,6 @@ void internal_execute_query(void *handle, const char *query, f_execute_query *ex
 out:
 
   mysql_free_result(res);
-  free(query);
 
   return (result);
 }
