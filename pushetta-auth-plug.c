@@ -152,7 +152,6 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 	switch(access){
 		// SUBSCRIPRION
 		case MOSQ_ACL_READ:
-			LOG(MOSQ_LOG_NOTICE, "Subscribe to channel %s by userd id %d", channel_name, django_user->user_id);
 			if(channel_data->kind == PRIVATE_CHANNEL)
 				ret = MOSQ_ERR_ACL_DENIED;
 		break;
@@ -168,6 +167,7 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 	if(channel_name != NULL)
 		free(channel_name);
 
+	LOG(MOSQ_LOG_NOTICE, "%s  %s", ret == MOSQ_ERR_SUCCESS ? "Auth" : "Not Auth", access == MOSQ_ACL_READ ? "Sub" : "Pub");
 	return ret;
 
 }
