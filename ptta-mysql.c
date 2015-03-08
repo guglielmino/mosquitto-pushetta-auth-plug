@@ -132,7 +132,7 @@ struct django_auth_user *get_django_user_by_token(void *handle, const char *toke
 void *get_channel_owner_id_callback(MYSQL_ROW rowdata){
   int *result = NULL;
   int val = 0;
-  
+
   result = malloc(sizeof(int));
   val = atoi(rowdata[0]);
   (*result) = val;
@@ -157,6 +157,7 @@ int get_channel_owner_id(void *handle, const char *channel_name){
   sprintf(query, QUERY_GET_CHANNEL_OWNER, channel_name);
 
   result = (int *)internal_execute_query(conf, query, get_channel_owner_id_callback);
+  
 
   free(query);
 
