@@ -23,13 +23,12 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
 	int i = 0;
     const char * p = topic;
     const int n_matches = 1;
-    /* "M" contains the matches found. */
     regmatch_t m[n_matches];
     char *found = NULL;
 
 	int nomatch = regexec (handler->r, p, n_matches, m, 0);
     if (nomatch) {
-        printf ("No more matches.\n");
+        LOG (MOSQ_LOG_NOTICE, "No  matches.\n");
         return NULL;
     }
     for (i = 0; i < n_matches; i++) {
