@@ -6,7 +6,7 @@
 #include "pushetta-auth-plug.h"
 
 // Online RegExt tester https://regex101.com/
-#define REGEX_TEXT "/^\\/pushetta.co{1}([^\\/]+\\/?)+$/"
+#define REGEX_TEXT "^\\/pushetta.co{1}([^\\/]+\\/?)+$"
 #define MAX_ERROR_MSG 100
 
 struct topic_name_hanler_data* topic_namehandler_init(){
@@ -25,7 +25,6 @@ struct topic_name_hanler_data* topic_namehandler_init(){
 }
 
 char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char *topic){
-	int i = 0;
     const int n_matches = 1;
     regmatch_t m[n_matches];
     char *found = NULL;
@@ -43,12 +42,12 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
     if (n_matches == 1) {
         int start;
         int finish;
-        if (m[i].rm_so == -1) {
+        if (m[1].rm_so == -1) {
         	LOG(MOSQ_LOG_ERR, "Pattern not found");
         	return NULL;
         }
-        start = m[i].rm_so;
-        finish = m[i].rm_eo;
+        start = m[1].rm_so;
+        finish = m[1].rm_eo;
         if(finish > start){
         	LOG(MOSQ_LOG_NOTICE, "FOUND %d - %d", start, finish);
         	found = strndup(topic + start, finish - start);
