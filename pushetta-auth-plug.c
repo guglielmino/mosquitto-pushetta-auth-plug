@@ -151,6 +151,7 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 	switch(access){
 		// SUBSCRIPRION
 		case MOSQ_ACL_READ:
+		LOG(MOSQ_LOG_NOTICE, "Subscribe to channel %s by userd id %d", channel_name, django_user->user_id);
 		break;
 		// PUBLISH
 		case MOSQ_ACL_WRITE:

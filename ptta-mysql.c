@@ -186,8 +186,6 @@ struct django_auth_user *internal_get_django_user(void *handle, const char *user
    
    char *defined_query = get_type == BY_USERNAME ? QUERY_GET_USER : QUERY_GET_USER_BY_TOKEN;
    
-   LOG(MOSQ_LOG_NOTICE, "USED QUERY %s", defined_query);
-   
    query = (char *)malloc(strlen(defined_query) + strlen(username_or_token));
    sprintf(query, defined_query, username_or_token);
 
