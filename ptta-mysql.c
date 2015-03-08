@@ -30,7 +30,7 @@ typedef enum __get_user_type{
 // Callback for query execution
 void *(f_execute_query)(MYSQL_ROW rowdata);
 
-
+void internal_execute_query(void *handle, const char *query, f_execute_query execute_query_callback);
 static bool auto_connect(struct mysql_config *conf);
 static char *escape(void *handle, const char *value, long *vlen);
 struct django_auth_user *internal_get_django_user(void *handle, const char *username_or_token, get_user_type get_type);
@@ -131,7 +131,7 @@ struct django_auth_user *get_django_user_by_token(void *handle, const char *toke
 void *get_channel_owner_id_callback(MYSQL_ROW rowdata){
    int *result = NULL;
 
-   *result = atoi(row[0]);
+   *result = atoi(rowdata[0]);
 
    return result;
 }
@@ -140,21 +140,21 @@ void *get_channel_owner_id_callback(MYSQL_ROW rowdata){
  * Purpose: Get user_id of Pushetta Channel 
  * Note: 
  */
-int get_channel_owner_id(void *handle, const char *chanel_name){
+int get_channel_owner_id(void *handle, const char *channel_name){
   struct mysql_config *conf = (struct mysql_config *)handle;
+  char *u = NULL, *query = NULL,
   int *result=NULL;
+  int ulen;
 
-  if ((u = escape(conf, chanel_name, &ulen)) == NULL)
-    return (NULL);
+  if ((u = escape(conf, channel_name, &ulen)) == NULL)
+    return -1;
 
-  query = (char *)malloc(strlen(QUERY_GET_CHANNEL_OWNER) + strlen(chanel_name));
-  sprintf(query, defined_query, chanel_name);
+  query = (char *)malloc(strlen(QUERY_GET_CHANNEL_OWNER) + strlen(channel_name));
+  sprintf(query, QUERY_GET_CHANNEL_OWNER, chanel_name);
 
   result = internal_execute_query(conf, query, get_channel_owner_id_callback);
 
-
   return result == NULL ? -1 : *result;
-
 }
 
 
