@@ -25,7 +25,7 @@ struct topic_name_hanler_data* topic_namehandler_init(){
 }
 
 char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char *topic){
-    const int n_matches = 1;
+    const int n_matches = 5;
     regmatch_t m[n_matches];
     char *found = NULL;
 
