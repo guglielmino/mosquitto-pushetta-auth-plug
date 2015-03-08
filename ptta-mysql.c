@@ -142,7 +142,7 @@ void *get_channel_owner_id_callback(MYSQL_ROW rowdata){
  */
 int get_channel_owner_id(void *handle, const char *channel_name){
   struct mysql_config *conf = (struct mysql_config *)handle;
-  char *u = NULL, *query = NULL,
+  char *u = NULL, *query = NULL;
   int *result = NULL;
   long ulen;
 
