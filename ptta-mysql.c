@@ -130,13 +130,14 @@ struct django_auth_user *get_django_user_by_token(void *handle, const char *toke
 
 
 void *get_channel_owner_id_callback(MYSQL_ROW rowdata){
-  int result = NULL;
+  int *result = NULL;
 
   LOG(MOSQ_LOG_NOTICE, "get_channel_owner_id_callback : %s ", rowdata[0]);
 
-  result = atoi(rowdata[0]);
+  result = malloc(sizeof(int))
+  *result = atoi(rowdata[0]);
 
-  return &result;
+  return result;
 }
 
 /**
@@ -158,6 +159,7 @@ int get_channel_owner_id(void *handle, const char *channel_name){
   result = (int *)internal_execute_query(conf, query, get_channel_owner_id_callback);
 
   free(query);
+  
   
   return result == NULL ? -1 : *result;
 }
