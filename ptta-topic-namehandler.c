@@ -5,7 +5,7 @@
 
 #include "pushetta-auth-plug.h"
 
-//#define REGEX_TEXT "([^/]*)$"
+// Online RegExt tester https://regex101.com/
 #define REGEX_TEXT "^\\/pushetta.co{1}([^\\/]+\\/?)+$"
 #define MAX_ERROR_MSG 100
 
@@ -50,6 +50,7 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
         start = m[i].rm_so + (p - topic);
         finish = m[i].rm_eo + (p - topic);
         if(finish > start){
+        	LOG(MOSQ_LOG_NOTICE, "FOUND %d - %d", start, finish);
         	found = strndup(topic + start, finish - start);
     	}
     }
