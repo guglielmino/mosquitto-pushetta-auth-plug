@@ -13,7 +13,7 @@ struct django_auth_user{
 struct ptta_channel_data{
 	int owner_id;
    	int kind;
-}
+};
 
 
 void *ptta_mysql_init();
