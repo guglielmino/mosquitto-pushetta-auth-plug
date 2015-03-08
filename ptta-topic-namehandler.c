@@ -39,15 +39,18 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
         LOG (MOSQ_LOG_NOTICE, "No matches.\n");
         return NULL;
     }
+
+    LOG(MOSQ_LOG_NOTICE, "MATCHES %d", n_matches);
+
     if (n_matches == 1) {
         int start;
         int finish;
-        if (m[1].rm_so == -1) {
+        if (m[0].rm_so == -1) {
         	LOG(MOSQ_LOG_ERR, "Pattern not found");
         	return NULL;
         }
-        start = m[1].rm_so;
-        finish = m[1].rm_eo;
+        start = m[0].rm_so;
+        finish = m[0].rm_eo;
         if(finish > start){
         	LOG(MOSQ_LOG_NOTICE, "FOUND %d - %d", start, finish);
         	found = strndup(topic + start, finish - start);
