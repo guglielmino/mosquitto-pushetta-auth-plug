@@ -146,6 +146,10 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 
 		break;
 	}
+
+	if(channel_name != NULL)
+		free(channel_name);
+	
 	return MOSQ_ERR_SUCCESS;
 
 }
