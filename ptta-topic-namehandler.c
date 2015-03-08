@@ -6,7 +6,7 @@
 #include "pushetta-auth-plug.h"
 
 // Online RegExt tester https://regex101.com/
-#define REGEX_TEXT "^\\/pushetta.co{1}([^\\/]+\\/?)+$"
+#define REGEX_TEXT "/^\\/pushetta.co{1}([^\\/]+\\/?)+$/"
 #define MAX_ERROR_MSG 100
 
 struct topic_name_hanler_data* topic_namehandler_init(){
