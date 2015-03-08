@@ -131,7 +131,6 @@ struct django_auth_user *get_django_user_by_token(void *handle, const char *toke
 
 void *get_channel_owner_id_callback(MYSQL_ROW rowdata){
   struct ptta_channel_data  *result = NULL;
-  int val = 0;
 
   result = (struct ptta_channel_data *)malloc(sizeof(struct ptta_channel_data));
   result->owner_id = atoi(rowdata[0]);
@@ -156,13 +155,11 @@ struct ptta_channel_data *get_channel_owner_id(void *handle, const char *channel
   query = (char *)malloc(strlen(QUERY_GET_CHANNEL_OWNER) + strlen(channel_name));
   sprintf(query, QUERY_GET_CHANNEL_OWNER, channel_name);
 
-  result = (int *)internal_execute_query(conf, query, get_channel_owner_id_callback);
-
+  result = (struct ptta_channel_data *)internal_execute_query(conf, query, get_channel_owner_id_callback);
 
   free(query);
 
-  
-  return result == NULL ? -1 : *result;
+  return result;
 }
 
 
