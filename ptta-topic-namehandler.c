@@ -8,7 +8,7 @@
 struct topic_name_hanler_data* topic_namehandler_init(){
 
 	struct topic_name_hanler_data* handler_data = (struct topic_name_hanler_data*)malloc(sizeof(struct topic_name_hanler_data));
-	int status = regcomp (&handler_data->r, REGEX_TEXT, REG_EXTENDED|REG_NEWLINE);
+	int status = regcomp (handler_data->r, REGEX_TEXT, REG_EXTENDED|REG_NEWLINE);
     if (status != 0) {
 		char error_message[MAX_ERROR_MSG];
 		regerror (status, handler_data->r, error_message, MAX_ERROR_MSG);
@@ -25,7 +25,7 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
     regmatch_t m[n_matches];
     char *found = NULL;
 
-	int nomatch = regexec (handler->r, p, n_matches, m, 0);
+	int nomatch = regexec (&handler->r, p, n_matches, m, 0);
     if (nomatch) {
         printf ("No more matches.\n");
         return NULL;
