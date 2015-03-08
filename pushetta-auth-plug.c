@@ -33,12 +33,12 @@
 #include <fnmatch.h>
 #include <time.h>
 
+#include "ptta-mysql.h"
+#include "ptta-topic-namehandler.h"
+
 #include "pushetta-auth-plug.h"
 
 #include "hash.h"
-
-#include "ptta-mysql.h"
-#include "ptta-topic-namehandler.h"
 #include "userdata.h"
 
 
