@@ -41,8 +41,6 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
         return NULL;
     }
 
-    LOG(MOSQ_LOG_NOTICE, "MATCHES %d", n_matches);
-
     while (m[i].rm_so > -1) {
         int start;
         int finish;
@@ -50,7 +48,6 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
         start = m[i].rm_so;
         finish = m[i].rm_eo;
         if(finish > start){
-        	LOG(MOSQ_LOG_NOTICE, "FOUND %d - %d", start, finish);
         	found = strndup(topic + start, finish - start);
     	}
     	i++;
