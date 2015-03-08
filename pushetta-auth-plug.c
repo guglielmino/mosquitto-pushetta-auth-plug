@@ -38,6 +38,7 @@
 #include "hash.h"
 
 #include "ptta-mysql.h"
+#include "ptta-topic-namehandler.h"
 #include "userdata.h"
 
 
@@ -78,14 +79,17 @@ int mosquitto_auth_security_init(void *userdata, struct mosquitto_auth_opt *auth
 	
 	struct userdata *ud = (struct userdata *)userdata;
 	ud->mysql_handle = ptta_mysql_init();
+	ud->topicname_handler = topic_namehandler_init();
 	
 	return MOSQ_ERR_SUCCESS;
 }
 
 int mosquitto_auth_security_cleanup(void *userdata, struct mosquitto_auth_opt *auth_opts, int auth_opt_count, bool reload)
 {
-   struct userdata *ud = (struct userdata *)userdata;
-   free(ud);
+   	struct userdata *ud = (struct userdata *)userdata;
+   	ptta_mysql_destroy(ud->mysql_handle);
+   	topic_namehandler_cleanup(ud->topicname_handler);
+   	free(ud);
 	return MOSQ_ERR_SUCCESS;
 }
 
@@ -126,16 +130,19 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 {
 	struct userdata *ud = (struct userdata *)userdata;
 	struct django_auth_user *django_user;
-	
+	char *channel_name = NULL;
+
 	django_user = get_django_user_by_token(ud->mysql_handle, username);
-	
+
+	channel_name = get_channel_from_topic((struct topic_name_hanler_data*)ud->topicname_handler, topic);
+
 	switch(access){
 		// SUBSCRIPRION
 		case 1:
 		break;
 		// PUBLISH
 		case 2:
-		LOG(MOSQ_LOG_NOTICE, "Publish to channel %s by userd id %d", topic, django_user->user_id);
+		LOG(MOSQ_LOG_NOTICE, "Publish to channel %s by userd id %d", channel_name, django_user->user_id);
 
 		break;
 	}

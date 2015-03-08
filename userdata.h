@@ -8,6 +8,7 @@ typedef struct django_auth_user*(f_get_user)(void *handle, const char *username_
 struct userdata {
    char *user_data_marker;
    void *mysql_handle;
+   void *topicname_handler;
 };
 
 #endif

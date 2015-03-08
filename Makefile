@@ -3,7 +3,7 @@
 include config.mk
 
 
-OBJS = pushetta-auth-plug.o base64.o pbkdf2-check.o hash.o ptta-mysql.o
+OBJS = pushetta-auth-plug.o base64.o pbkdf2-check.o hash.o ptta-mysql.o ptta-topic-namehandler.o
 
 OSSLINC = -I$(OPENSSLDIR)/include
 OSSLIBS = -L$(OPENSSLDIR)/lib -lcrypto
@@ -33,7 +33,8 @@ pushetta-auth-plug.o: pushetta-auth-plug.c Makefile
 pbkdf2-check.o: pbkdf2-check.c base64.h Makefile
 base64.o: base64.c base64.h Makefile
 hash.o: hash.c hash.h uthash.h Makefile
-ptta-mysql.0: ptta-mysql.c Makefile
+ptta-mysql.o: ptta-mysql.c Makefile
+ptta-topic-namehandler.o: ptta-topic-namehandler.c Makefile
 
 np: np.c base64.o
 	$(CC) $(CFLAGS) $^ -o $@ $(OSSLIBS)
