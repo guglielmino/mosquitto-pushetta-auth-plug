@@ -5,7 +5,8 @@
 
 #include "pushetta-auth-plug.h"
 
-#define REGEX_TEXT "^/pushetta.co{1}([^/\0]+/?)+$"
+#define REGEX_TEXT "([^/]*)$"
+//#define REGEX_TEXT "^/pushetta.co{1}([^/\0]+/?)+$"
 #define MAX_ERROR_MSG 100
 
 struct topic_name_hanler_data* topic_namehandler_init(){
