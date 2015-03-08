@@ -1,5 +1,6 @@
 #include "ptta-topic-namehandler.h"
 
+#define _GNU_SOURCE
 #include <string.h>
 
 #include "pushetta-auth-plug.h"
