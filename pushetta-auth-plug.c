@@ -115,7 +115,8 @@ int mosquitto_auth_unpwd_check(void *userdata, const char *username, const char 
    struct userdata *ud = (struct userdata *)userdata;
 
    
-   django_user = (struct django_auth_user *)ud->get_user(ud->mysql_conf, value_to_check);
+   //django_user = (struct django_auth_user *)ud->get_user(ud->mysql_conf, value_to_check);
+   django_user = get_django_user_by_token(ud->mysql_conf, value_to_check);
      
    if(django_user != NULL){
 
