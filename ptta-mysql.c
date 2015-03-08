@@ -9,7 +9,7 @@
 
 #define QUERY_GET_USER "select username, password, id from auth_user where username='%s'"
 #define QUERY_GET_USER_BY_TOKEN "select username, password, a.id from auth_user as a join authtoken_token as b on a.id=b.user_id where b.key='%s'; "
-#define QUERY_GET_CHANNEL_OWNER "select owner_id from core_channel where name='%s'"
+#define QUERY_GET_CHANNEL_OWNER "select owner_id, kind from core_channel where name='%s'"
 
 struct mysql_config {
 	MYSQL *mysql;
