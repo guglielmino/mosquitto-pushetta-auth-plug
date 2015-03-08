@@ -6,15 +6,13 @@
 #include "pushetta-auth-plug.h"
 
 //#define REGEX_TEXT "([^/]*)$"
-#define REGEX_TEXT "^/pushetta.co{1}([^/]+/?)+$"
+#define REGEX_TEXT "^\\/pushetta.co{1}([^\\/]+\\/?)+$"
 #define MAX_ERROR_MSG 100
 
 struct topic_name_hanler_data* topic_namehandler_init(){
 
 	struct topic_name_hanler_data* handler_data = (struct topic_name_hanler_data*)malloc(sizeof(struct topic_name_hanler_data));
 	handler_data->r = (regex_t *)malloc(sizeof(regex_t));
-
-	LOG(MOSQ_LOG_NOTICE, "DBG --- topic_namehandler_init");
 
 	int status = regcomp (handler_data->r, REGEX_TEXT, REG_EXTENDED|REG_NEWLINE);
     if (status != 0) {
@@ -32,6 +30,11 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
     const int n_matches = 1;
     regmatch_t m[n_matches];
     char *found = NULL;
+
+    if (handler->r == NULL){
+    	LOG(MOSQ_LOG_ERR, "Wrong regex parser handler");
+    	return found;
+    }
 
 	int nomatch = regexec (handler->r, p, n_matches, m, 0);
     if (nomatch) {
