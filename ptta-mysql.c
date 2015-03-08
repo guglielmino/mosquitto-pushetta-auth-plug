@@ -28,7 +28,7 @@ typedef enum __get_user_type{
 }get_user_type;
  
 // Callback for query execution
-void *(f_execute_query)(MYSQL_ROW rowdata);
+typedef void *(*f_execute_query)(MYSQL_ROW rowdata);
 
 void internal_execute_query(void *handle, const char *query, f_execute_query *execute_query_callback);
 static bool auto_connect(struct mysql_config *conf);
