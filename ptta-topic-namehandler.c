@@ -45,7 +45,7 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
         int finish;
         if (m[i].rm_so == -1) {
         	LOG(MOSQ_LOG_ERR, "Pattern not found");
-            break;
+        	return NULL;
         }
         start = m[i].rm_so;
         finish = m[i].rm_eo;
