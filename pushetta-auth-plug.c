@@ -159,8 +159,8 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 			// MOSQ_ERR_ACL_DENIED se il canale non è dell'utente
 			int owner_id = get_channel_owner_id(ud->mysql_handle, channel_name);
 
-			ret =  owner_id == django_user->user_id ? MOSQ_ERR_SUCCESS : MOSQ_ERR_ACL_DENIED;
-			LOG(MOSQ_LOG_NOTICE, "Publish to channel %s %s (owner_id %d)", channel_name, ret== MOSQ_ERR_SUCCESS ? " Authorized" : " NOT Authorized", owner_id);
+			ret = owner_id == django_user->user_id ? MOSQ_ERR_SUCCESS : MOSQ_ERR_ACL_DENIED;
+			LOG(MOSQ_LOG_NOTICE, "Publish to channel %s %s (owner_id %d -> )", channel_name, ret == MOSQ_ERR_SUCCESS ? " Authorized" : " NOT Authorized", owner_id, django_user->user_id);
 
 		}
 		break;
