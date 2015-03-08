@@ -30,7 +30,7 @@ typedef enum __get_user_type{
 // Callback for query execution
 void *(f_execute_query)(MYSQL_ROW rowdata);
 
-void internal_execute_query(void *handle, const char *query, f_execute_query execute_query_callback);
+void internal_execute_query(void *handle, const char *query, f_execute_query *execute_query_callback);
 static bool auto_connect(struct mysql_config *conf);
 static char *escape(void *handle, const char *value, long *vlen);
 struct django_auth_user *internal_get_django_user(void *handle, const char *username_or_token, get_user_type get_type);
@@ -143,8 +143,8 @@ void *get_channel_owner_id_callback(MYSQL_ROW rowdata){
 int get_channel_owner_id(void *handle, const char *channel_name){
   struct mysql_config *conf = (struct mysql_config *)handle;
   char *u = NULL, *query = NULL,
-  int *result=NULL;
-  int ulen;
+  int *result = NULL;
+  long ulen;
 
   if ((u = escape(conf, channel_name, &ulen)) == NULL)
     return -1;
