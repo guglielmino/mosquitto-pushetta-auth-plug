@@ -157,7 +157,7 @@ int get_channel_owner_id(void *handle, const char *channel_name){
   sprintf(query, QUERY_GET_CHANNEL_OWNER, channel_name);
 
   result = (int *)internal_execute_query(conf, query, get_channel_owner_id_callback);
-  
+
 
   free(query);
 
@@ -219,7 +219,8 @@ struct django_auth_user *internal_get_django_user(void *handle, const char *user
    result = (struct django_auth_user*)malloc(sizeof(struct django_auth_user));
    result->username = strdup(rowdata[0]);
    result->password = strdup(rowdata[1]);
-	 
+   result->user_id = atoi(rowdata[2]);	 
+   
 out:
 
 	mysql_free_result(res);
