@@ -14,10 +14,13 @@ struct topic_name_hanler_data* topic_namehandler_init(){
 	struct topic_name_hanler_data* handler_data = (struct topic_name_hanler_data*)malloc(sizeof(struct topic_name_hanler_data));
 	handler_data->r = (regex_t *)malloc(sizeof(regex_t));
 
+	LOG(MOSQ_LOG_NOTICE, "DBG --- topic_namehandler_init");
+
 	int status = regcomp (handler_data->r, REGEX_TEXT, REG_EXTENDED|REG_NEWLINE);
     if (status != 0) {
 		char error_message[MAX_ERROR_MSG];
 		regerror (status, handler_data->r, error_message, MAX_ERROR_MSG);
+		LOG(MOSQ_LOG_ERR, error_message);
 		return NULL;
     }
     return handler_data;
@@ -46,8 +49,6 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
         if(finish > start){
         	found = strndup(topic + start, finish - start);
     	}
-        
-        LOG(MOSQ_LOG_NOTICE, "Match s:%d e:%d", start, finish);
     }
 
     return found;
