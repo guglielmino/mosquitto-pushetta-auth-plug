@@ -142,6 +142,8 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 	struct django_auth_user *django_user;
 	char *channel_name = NULL;
 
+	LOG(MOSQ_LOG_NOTICE, "ACL %d", access);
+
 	django_user = get_django_user_by_token(ud->mysql_handle, username);
 
 	channel_name = get_channel_from_topic((struct topic_name_hanler_data*)ud->topicname_handler, topic);
