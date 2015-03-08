@@ -135,7 +135,7 @@ void *get_channel_owner_id_callback(MYSQL_ROW rowdata){
   LOG(MOSQ_LOG_NOTICE, "get_channel_owner_id_callback : %s ", rowdata[0]);
 
   result = malloc(sizeof(int))
-  *result = (int*)atoi(rowdata[0]);
+  *result = (int)atoi(rowdata[0]);
 
   return result;
 }
