@@ -159,7 +159,7 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 		{
 			LOG(MOSQ_LOG_NOTICE, "Publish to channel %s by userd id %d", channel_name, django_user->user_id);
 			// MOSQ_ERR_ACL_DENIED se il canale non è dell'utente
-			int owner_id = get_channel_owner_id(void *handle, const char *channel_name)
+			int owner_id = get_channel_owner_id(ud->mysql_handle, channel_name);
 			ret =  owner_id == django_user->user_id ? MOSQ_ERR_SUCCESS : MOSQ_ERR_ACL_DENIED;
 		}
 		break;
