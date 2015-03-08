@@ -1,5 +1,7 @@
 #include "ptta-topic-namehandler.h"
 
+#include <string.h>
+
 #include "pushetta-auth-plug.h"
 
 #define REGEX_TEXT "([^/]*)$"
