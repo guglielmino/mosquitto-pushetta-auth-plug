@@ -6,7 +6,7 @@
 #include "pushetta-auth-plug.h"
 
 //#define REGEX_TEXT "([^/]*)$"
-#define REGEX_TEXT "^/pushetta.co{1}([^/\0]+/?)+$"
+#define REGEX_TEXT "^/pushetta.co{1}([^/]+/?)+$"
 #define MAX_ERROR_MSG 100
 
 struct topic_name_hanler_data* topic_namehandler_init(){
@@ -19,7 +19,7 @@ struct topic_name_hanler_data* topic_namehandler_init(){
 	int status = regcomp (handler_data->r, REGEX_TEXT, REG_EXTENDED|REG_NEWLINE);
     if (status != 0) {
 		char error_message[MAX_ERROR_MSG];
-		regerror (status, handler_data->r, error_message, MAX_ERROR_MSG);
+		regerror(status, handler_data->r, error_message, MAX_ERROR_MSG);
 		LOG(MOSQ_LOG_ERR, error_message);
 		return NULL;
     }
@@ -35,7 +35,7 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
 
 	int nomatch = regexec (handler->r, p, n_matches, m, 0);
     if (nomatch) {
-        LOG (MOSQ_LOG_NOTICE, "No  matches.\n");
+        LOG (MOSQ_LOG_NOTICE, "No matches.\n");
         return NULL;
     }
     for (i = 0; i < n_matches; i++) {

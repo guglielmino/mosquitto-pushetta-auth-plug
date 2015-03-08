@@ -79,7 +79,17 @@ int mosquitto_auth_security_init(void *userdata, struct mosquitto_auth_opt *auth
 	
 	struct userdata *ud = (struct userdata *)userdata;
 	ud->mysql_handle = ptta_mysql_init();
+	if(ud->mysql_handle == NULL){
+		LOG(MOSQ_LOG_ERR, "MySQL module initialization failed");
+		return MOSQ_ERR_UNKNOWN;
+	}
 	ud->topicname_handler = topic_namehandler_init();
+	if(ud->topicname_handler == NULL){
+		LOG(MOSQ_LOG_ERR, "Topic Handler module initialization failed");
+		return MOSQ_ERR_UNKNOWN;
+	}
+
+
 	
 	return MOSQ_ERR_SUCCESS;
 }
@@ -149,7 +159,7 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 
 	if(channel_name != NULL)
 		free(channel_name);
-	
+
 	return MOSQ_ERR_SUCCESS;
 
 }
