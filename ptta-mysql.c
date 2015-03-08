@@ -131,9 +131,10 @@ struct django_auth_user *get_django_user_by_token(void *handle, const char *toke
 
 void *get_channel_owner_id_callback(MYSQL_ROW rowdata){
   int *result = NULL;
-
+  int val = 0;
   result = malloc(sizeof(int))
-  (*result) = (int*)atoi(rowdata[0]);
+  val = atoi(rowdata[0]);
+  (*result) = val;
 
   return result;
 }
