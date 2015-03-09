@@ -144,13 +144,29 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 	int ret = MOSQ_ERR_SUCCESS;
 	struct ptta_channel_data *channel_data;
 
-	django_user = get_django_user_by_token(ud->mysql_handle, username);
-
-	channel_name = get_channel_from_topic((struct topic_name_hanler_data*)ud->topicname_handler, topic);
-	channel_data = get_channel_owner_id(ud->mysql_handle, channel_name);
-
-	if(channel_name == NULL || channel_data == NULL)
+   if(username == NULL){
+	   LOG(MOSQ_LOG_ERR, "username NULL");
 		return MOSQ_ERR_ACL_DENIED;
+   }
+
+   
+	django_user = get_django_user_by_token(ud->mysql_handle, username);
+	if(django_user == NULL){
+	   LOG(MOSQ_LOG_ERR, "django_user NULL");
+		return MOSQ_ERR_ACL_DENIED;
+   }
+      
+	channel_name = get_channel_from_topic((struct topic_name_hanler_data*)ud->topicname_handler, topic);
+   if(channel_name == NULL){
+      LOG(MOSQ_LOG_ERR, "channel_name NULL");
+		return MOSQ_ERR_ACL_DENIED;
+   }
+   
+	channel_data = get_channel_owner_id(ud->mysql_handle, channel_name);
+	if(channel_data == NULL){
+      LOG(MOSQ_LOG_ERR, "channel_name NULL");
+		return MOSQ_ERR_ACL_DENIED;
+   }
 
 	switch(access){
 		// SUBSCRIPRION
@@ -170,7 +186,6 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 	if(channel_name != NULL)
 		free(channel_name);
 
-	LOG(MOSQ_LOG_NOTICE, "%s  %s", ret == MOSQ_ERR_SUCCESS ? "Auth" : "Not Auth", access == MOSQ_ACL_READ ? "Sub" : "Pub");
 	return ret;
 
 }

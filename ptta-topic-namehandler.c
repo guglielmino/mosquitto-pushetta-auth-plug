@@ -29,7 +29,7 @@ char *get_channel_from_topic(struct topic_name_hanler_data* handler, const char 
     int i = 0;
     regmatch_t m[n_matches];
     char *found = NULL;
-
+    
     if (handler->r == NULL){
     	LOG(MOSQ_LOG_ERR, "Wrong regex parser handler");
     	return found;
