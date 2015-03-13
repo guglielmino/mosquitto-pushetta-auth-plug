@@ -42,6 +42,7 @@
 #include "userdata.h"
 
 
+
 int pbkdf2_check(char *password, char *hash);
 
 int mosquitto_auth_plugin_version(void)
@@ -72,12 +73,23 @@ int mosquitto_auth_security_init(void *userdata, struct mosquitto_auth_opt *auth
 	struct mosquitto_auth_opt *o;
 	int i;
 
+	struct userdata *ud = (struct userdata *)userdata;
+
 	for (i = 0, o = auth_opts; i < auth_opt_count; i++, o++) {
 		//LOG(MOSQ_LOG_NOTICE, "Options: key=%s, val=%s", o->key, o->value);
 		p_add(o->key, o->value);
+
+		if(strcmp(o->key, "ptta_apiuser") == 0){
+			ud->api_username = strdup(o->value);
+			LOG(MOSQ_LOG_NOTICE, "Importo api_username: %s", ud->api_username);
+		}
+		else if(strcmp(o->key, "ptta_apipass") == 0){
+			ud->api_password = strdup(o->value);
+			LOG(MOSQ_LOG_NOTICE, "Importo api_password: %s", ud->api_password);
+		}
 	}
 	
-	struct userdata *ud = (struct userdata *)userdata;
+	
 	ud->mysql_handle = ptta_mysql_init();
 	if(ud->mysql_handle == NULL){
 		LOG(MOSQ_LOG_ERR, "MySQL module initialization failed");
@@ -99,6 +111,13 @@ int mosquitto_auth_security_cleanup(void *userdata, struct mosquitto_auth_opt *a
    	struct userdata *ud = (struct userdata *)userdata;
    	ptta_mysql_destroy(ud->mysql_handle);
    	topic_namehandler_cleanup(ud->topicname_handler);
+
+   	if(ud->api_username != NULL)
+   		free(ud->api_username);
+
+	if(ud->api_password != NULL)
+   		free(ud->api_password);
+
    	free(ud);
 	return MOSQ_ERR_SUCCESS;
 }
@@ -106,23 +125,26 @@ int mosquitto_auth_security_cleanup(void *userdata, struct mosquitto_auth_opt *a
 
 int mosquitto_auth_unpwd_check(void *userdata, const char *username, const char *password)
 {
-   struct django_auth_user *django_user;
-   
-   struct userdata *ud = (struct userdata *)userdata;
+	struct django_auth_user *django_user;
 
-   django_user = get_django_user_by_token(ud->mysql_handle, username);
-     
-   if(django_user != NULL){
+	struct userdata *ud = (struct userdata *)userdata;
 
-      if(django_user->password != NULL)
-         free(django_user->password);
-   
-      if(django_user->username != NULL)
-         free(django_user->username);
-         
-      free(django_user);
-   }
-   
+	if(strcmp(username, ud->api_username) == 0  && strcmp(password, ud->api_password) == 0){
+		return MOSQ_ERR_SUCCESS;
+	}
+
+	django_user = get_django_user_by_token(ud->mysql_handle, username);
+	 
+	if(django_user != NULL){
+		if(django_user->password != NULL)
+			free(django_user->password);
+
+		if(django_user->username != NULL)
+			free(django_user->username);
+		 
+		free(django_user);
+	}
+
 	return django_user == NULL ? MOSQ_ERR_AUTH : MOSQ_ERR_SUCCESS;
 }
 
@@ -144,29 +166,36 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 	int ret = MOSQ_ERR_SUCCESS;
 	struct ptta_channel_data *channel_data;
 
-   if(username == NULL){
-	   LOG(MOSQ_LOG_ERR, "username NULL");
+	if(username == NULL){
+		LOG(MOSQ_LOG_ERR, "username NULL");
 		return MOSQ_ERR_ACL_DENIED;
-   }
+	}
+
+    channel_name = get_channel_from_topic((struct topic_name_hanler_data*)ud->topicname_handler, topic);
+	if(channel_name == NULL){
+		LOG(MOSQ_LOG_ERR, "channel_name for topic %s NULL", topic);
+		return MOSQ_ERR_ACL_DENIED;
+	}
+	// API Layer autorization for all operations
+	// Password is validated on auth event
+	if(strcmp(username, ud->api_username) == 0){
+		return MOSQ_ERR_SUCCESS;
+	}
 
    
 	django_user = get_django_user_by_token(ud->mysql_handle, username);
 	if(django_user == NULL){
-	   LOG(MOSQ_LOG_ERR, "django_user NULL");
+		LOG(MOSQ_LOG_ERR, "django_user NULL");
 		return MOSQ_ERR_ACL_DENIED;
-   }
-      
-	channel_name = get_channel_from_topic((struct topic_name_hanler_data*)ud->topicname_handler, topic);
-   if(channel_name == NULL){
-      LOG(MOSQ_LOG_ERR, "channel_name NULL");
-		return MOSQ_ERR_ACL_DENIED;
-   }
-   
+	}
+
+	
+
 	channel_data = get_channel_owner_id(ud->mysql_handle, channel_name);
 	if(channel_data == NULL){
-      LOG(MOSQ_LOG_ERR, "channel_name NULL");
+		LOG(MOSQ_LOG_ERR, "channel_name NULL");
 		return MOSQ_ERR_ACL_DENIED;
-   }
+	}
 
 	switch(access){
 		// SUBSCRIPRION
