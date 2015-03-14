@@ -41,6 +41,7 @@
 #include "hash.h"
 #include "userdata.h"
 
+#define ACCESS_STRING(access) access == MOSQ_ACL_READ ? "SUBSCRIBE" : "PUBLISH"
 
 
 int pbkdf2_check(char *password, char *hash);
@@ -130,6 +131,7 @@ int mosquitto_auth_unpwd_check(void *userdata, const char *username, const char 
 	struct userdata *ud = (struct userdata *)userdata;
 
 	if(strcmp(username, ud->api_username) == 0  && strcmp(password, ud->api_password) == 0){
+		LOG(MOSQ_LOG_NOTICE, "API authentication success");
 		return MOSQ_ERR_SUCCESS;
 	}
 
@@ -158,7 +160,8 @@ int mosquitto_auth_unpwd_check(void *userdata, const char *username, const char 
  *	for publish (WRITE) (2)
  *
  */
-int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *username, const char *topic, int access)
+int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *username, 
+	const char *topic, int access)
 {
 	struct userdata *ud = (struct userdata *)userdata;
 	struct django_auth_user *django_user;
@@ -167,7 +170,7 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 	struct ptta_channel_data *channel_data;
 
 	if(username == NULL){
-		LOG(MOSQ_LOG_ERR, "username NULL");
+		LOG(MOSQ_LOG_ERR, "username NULL %s", ACCESS_STRING(access));
 		return MOSQ_ERR_ACL_DENIED;
 	}
 
@@ -182,7 +185,7 @@ int mosquitto_auth_acl_check(void *userdata, const char *clientid, const char *u
 		return MOSQ_ERR_SUCCESS;
 	}
 
-   
+	// Standard clients use token a username   
 	django_user = get_django_user_by_token(ud->mysql_handle, username);
 	if(django_user == NULL){
 		LOG(MOSQ_LOG_ERR, "django_user NULL");
