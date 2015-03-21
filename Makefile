@@ -2,7 +2,7 @@
 # It also contains MOSQUITTO_SRC
 include config.mk
 
-
+prefix=/usr/local
 OBJS = pushetta-auth-plug.o base64.o pbkdf2-check.o hash.o ptta-mysql.o ptta-topic-namehandler.o
 
 OSSLINC = -I$(OPENSSLDIR)/include
@@ -44,8 +44,12 @@ $(CDBLIB):
 
 pwdb.cdb: pwdb.in
 	$(CDB) -c -m  pwdb.cdb pwdb.in
-clean :
+
+clean:
 	rm -f *.o *.so np
+
+install: pushetta-auth-plug.so
+    	install -m 0755 pushetta-auth-plug.so $(prefix)/lib
 
 config.mk:
 	@echo "Please create your own config.mk file"
