@@ -16,7 +16,10 @@ WORKDIR /usr/src/app
 COPY . .
 
 RUN make
+RUN make install
 
 
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
-
+CMD ["/usr/sbin/mosquitto", "-c", "/mosquitto/config/mosquitto.conf"]

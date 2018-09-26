@@ -9,13 +9,11 @@ branches:
   only:
     - master
     - /v\d+\.\d+[a-z]/ # Tag in the format vX.Y.Z
-    - feature/dockerization
 
 script:
-  - docker build -t guglielmino/mosquitto-pushetta-auth-plugin .
-
+  - docker build -t guglielmino/mosquitto-pushetta-auth-plugin:latest  -t guglielmino/mosquitto-pushetta-auth-plugin:$TRAVIS_TAG .
 deploy:
   provider: script
-  script: bash docker_push
+  script: bash docker_push $TRAVIS_TAG
   on:
-    branch: feature/dockerization
+    branch: /v\d+\.\d+[a-z]/

@@ -1,4 +1,10 @@
 #!/bin/bash
 
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-docker push guglielmino/mosquitto-pushetta-auth-plugin
+
+# Add tag if passed on commandline
+if [ ! -z "$1" ]
+  then
+    docker push guglielmino/mosquitto-pushetta-auth-plugin:$1
+fi
+docker push guglielmino/mosquitto-pushetta-auth-plugin:latest
