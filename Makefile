@@ -49,7 +49,7 @@ clean:
 	rm -f *.o *.so np
 
 install: pushetta-auth-plug.so
-    	install -m 0755 pushetta-auth-plug.so $(prefix)/lib
+	install -m 0755 pushetta-auth-plug.so $(prefix)/lib
 
 config.mk:
 	@echo "Please create your own config.mk file"

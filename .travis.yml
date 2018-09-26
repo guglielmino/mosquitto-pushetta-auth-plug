@@ -1,0 +1,20 @@
+sudo: required
+
+services:
+  - docker
+
+install: []
+
+branches:
+  only:
+    - master
+    - /v\d+\.\d+[a-z]/ # Tag in the format vX.Y.Z
+
+script:
+  - docker build -t guglielmino/mosquitto-pushetta-auth-plugin .
+
+deploy:
+  provider: script
+  script: bash docker_push
+  on:
+    branch: feature/dockerization
