@@ -13,11 +13,10 @@ RUN set -e; \
 
 WORKDIR /usr/src/app
 
-COPY . .
+COPY ./src .
 
 RUN make
 RUN make install
-
 
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]

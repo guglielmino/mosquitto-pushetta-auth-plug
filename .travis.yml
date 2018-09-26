@@ -14,8 +14,6 @@ branches:
     - /^v\d+\.\d+\.\d+$/ # Tag in the format vX.Y.Z
 
 script:
-  - echo "TRAVIS_TAG" $TRAVIS_TAG
-  - echo "TRAVIS_BRANCH" $TRAVIS_BRANCH
   - if [ ! -z "$TRAVIS_TAG" ]; then export IMAGE_TAG=$TRAVIS_TAG; else export IMAGE_TAG=$TRAVIS_BRANCH; fi
   - docker build -t $DOCKER_REPO_SLUG:latest -t $DOCKER_REPO_SLUG:$IMAGE_TAG .
 deploy:
