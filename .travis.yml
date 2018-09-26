@@ -8,13 +8,10 @@ env:
   - DOCKER_REPO_SLUG=guglielmino/mosquitto-pushetta-auth-plugin
 install: []
 
-on:
-  tags: true
-
-#branches:
-#  only:
-#    - master
-#    - /v\d+\.\d+[a-z]/ # Tag in the format vX.Y.Z
+branches:
+  only:
+    - master
+    - /^v\d+\.\d+\.\d+$/ # Tag in the format vX.Y.Z
 
 script:
   - echo "TRAVIS_TAG" $TRAVIS_TAG
