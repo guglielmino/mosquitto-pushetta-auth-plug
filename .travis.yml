@@ -9,6 +9,7 @@ branches:
   only:
     - master
     - /v\d+\.\d+[a-z]/ # Tag in the format vX.Y.Z
+    - feature/dockerization
 
 script:
   - docker build -t guglielmino/mosquitto-pushetta-auth-plugin .
