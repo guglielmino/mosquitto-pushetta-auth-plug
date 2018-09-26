@@ -3,6 +3,9 @@ sudo: required
 services:
   - docker
 
+env:
+  # IMPORTANT! Add your docker slug here (commit once)
+  - DOCKER_REPO_SLUG=guglielmino/mosquitto-pushetta-auth-plugin
 install: []
 
 branches:
@@ -11,9 +14,11 @@ branches:
     - /v\d+\.\d+[a-z]/ # Tag in the format vX.Y.Z
 
 script:
-  - docker build -t guglielmino/mosquitto-pushetta-auth-plugin:latest  -t guglielmino/mosquitto-pushetta-auth-plugin:$TRAVIS_TAG .
+  - if [ ! -z "$TRAVIS_TAG" ]; then export IMAGE_TAG=$TRAVIS_TAG; else export IMAGE_TAG=$TRAVIS_BRANCH; fi
+  - docker build -t $DOCKER_REPO_SLUG:latest -t $DOCKER_REPO_SLUG:$IMAGE_TAG .
 deploy:
   provider: script
   script: bash docker_push $TRAVIS_TAG
   on:
-    branch: /v\d+\.\d+[a-z]/
+    tags: true
+    condition: '$TRAVIS_TAG =~ ^v[0-9].[0-9].[0-9]$'
