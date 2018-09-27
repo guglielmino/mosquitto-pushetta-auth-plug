@@ -23,6 +23,7 @@ RUN touch /run/mysqld/mysqld.sock
 RUN make
 RUN make install
 
+COPY wait_for /
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
