@@ -10,7 +10,7 @@ install: []
 
 branches:
   only:
-    - master
+    # - master
     - /^v\d+\.\d+\.\d+$/ # Tag in the format vX.Y.Z
 
 script:
