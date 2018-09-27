@@ -2,7 +2,7 @@
 # It also contains MOSQUITTO_SRC
 include config.mk
 
-prefix=/usr/local
+prefix=$(PREFIX)
 OBJS = pushetta-auth-plug.o base64.o pbkdf2-check.o hash.o ptta-mysql.o ptta-topic-namehandler.o
 
 OSSLINC = -I$(OPENSSLDIR)/include
