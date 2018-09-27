@@ -5,7 +5,7 @@
 #include <mosquitto.h>
 #include <mosquitto_plugin.h>
 
-#define PLUGIN_VERSION "1.0.6"
+#define PLUGIN_VERSION "1.0.7"
 
 #define LOG(level, message, args...) mosquitto_log_printf(level, message, ##args)
 
